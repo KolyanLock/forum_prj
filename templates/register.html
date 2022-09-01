@@ -1,0 +1,15 @@
+{% extends 'index.html' %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+    <h1>Страница регистрации</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn btn-primary">Зарегистрировать</button>
+    </form>
+    <hr>
+    <small class="rext-muted">
+        Уже зарегистрированы? <a href="{% url 'login' %}">Войти</a>
+    </small>
+{% endblock %}

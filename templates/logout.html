@@ -1,0 +1,9 @@
+{% extends 'index.html' %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+    <h4>Вы вышли</h4>
+        <small class="rext-muted">
+        Хотите снова войти? <a href="{% url 'login' %}">Войти</a>
+    </small>
+{% endblock %}

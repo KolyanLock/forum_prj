@@ -1,0 +1,23 @@
+{% extends 'index.html' %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+    <h1>Страница входа</h1>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <br>
+        <button class="btn btn-primary">Войти</button>
+    </form>
+    <hr>
+    <small class="rext-muted">
+        Не зарегестрированы? <a href="{% url 'register' %}">Регистрация</a>
+    </small>
+{% endblock %}
