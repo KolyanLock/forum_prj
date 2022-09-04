@@ -1,15 +1,63 @@
 from django.shortcuts import render
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, authentication, permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.contrib.auth.models import User
 
 from api.models import Checkbox
-from api.serializers import CheckboxSerializer
+from api.serializers import CheckboxSerializer, UserSerializer
 
 
 # class CheckboxViewSet(viewsets.ModelViewSet):
 #     queryset = Checkbox.objects.all()
 #     serializer_class = CheckboxSerializer
+
+class UserList(APIView):
+    # authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request, format=None):
+        # users = [user.username for user in User.objects.all()]
+        user_list = User.objects.all()
+        serializer = UserSerializer(user_list, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class UserDetail(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request, pk, format=None):
+        try:
+            user = User.objects.get(id=pk)
+            serializer = UserSerializer(user)
+        except User.DoesNotExist:
+            return Response({'error': f'User with id={pk} is not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        try:
+            user = User.objects.get(id=pk)
+            serializer = CheckboxSerializer(user, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+        except Checkbox.DoesNotExist:
+            return Response({'error': f'User with id={pk} is not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.data)
+
+    def delete(self, request, pk, format=None):
+        try:
+            user = User.objects.get(id=pk)
+            user.delete()
+        except User.DoesNotExist:
+            return Response({'error': f'User with id={pk} is not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET'])

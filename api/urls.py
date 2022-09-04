@@ -14,4 +14,6 @@ urlpatterns = [
     path('checkbox_create', views.checkbox_create, name='checkbox_create'),
     path('checkbox_update/<int:pk>', views.checkbox_update, name='checkbox_create'),
     path('checkbox_delete/<int:pk>', views.checkbox_delete, name='checkbox_create'),
+    path('user_list', views.UserList.as_view(), name='user_list'),
+    path('user_list/<int:pk>', views.UserDetail.as_view(), name='user_detail'),
 ]
