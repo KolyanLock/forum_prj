@@ -1,17 +1,23 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status, authentication, permissions, generics, mixins
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 
 from api.models import Checkbox
-from api.serializers import CheckboxSerializer, UserSerializer
+from api.serializers import CheckboxSerializer, UserSerializer, DataSerializer
 
 
-# class CheckboxViewSet(viewsets.ModelViewSet):
-#     queryset = Checkbox.objects.all()
-#     serializer_class = CheckboxSerializer
+class CheckboxViewSet(viewsets.ModelViewSet):
+    queryset = Checkbox.objects.all()
+    serializer_class = CheckboxSerializer
+
+    @action(detail=False, methods=['get'])
+    def limit(self, request, pk=None):
+        params = request.query_params
+        return Response({'result': params})
+
 
 # class UserList(APIView):
 #     # authentication_classes = [authentication.TokenAuthentication]
@@ -45,6 +51,8 @@ from api.serializers import CheckboxSerializer, UserSerializer
 #     if serializer.is_valid():
 #         serializer.save()
 #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+from api.utils import Sum
+
 
 class UserList(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin):
     queryset = User.objects.all()
@@ -165,3 +173,13 @@ def checkbox_delete(request, pk):
     except Checkbox.DoesNotExist:
         return Response({'error': f'Checkbox with id={pk} is not found'}, status=status.HTTP_404_NOT_FOUND)
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class DataView(APIView):
+
+    @staticmethod
+    def get(request):
+        serializer = DataSerializer(data=request.query_params)
+        serializer.is_valid(raise_exception=True)
+        result = Sum(serializer.validated_data).call()
+        return Response(result, status=status.HTTP_200_OK)
