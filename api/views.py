@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import render
 from rest_framework import viewsets, status, authentication, permissions, generics, mixins
 from rest_framework.decorators import api_view, action
@@ -8,6 +10,8 @@ from django.contrib.auth.models import User
 from api.models import Checkbox
 from api.serializers import CheckboxSerializer, UserSerializer, DataSerializer
 
+logger = logging.getLogger('django')
+
 
 class CheckboxViewSet(viewsets.ModelViewSet):
     queryset = Checkbox.objects.all()
@@ -15,8 +19,12 @@ class CheckboxViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def limit(self, request, pk=None):
-        params = request.query_params
-        return Response({'result': params})
+        try:
+            params = request.query_params
+            result = int(params.get('a')) / int(params.get('b'))
+        except Exception as error:
+            logger.info(f'error: {error}')
+        return Response({'result': result})
 
 
 # class UserList(APIView):
